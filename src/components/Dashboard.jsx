@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppContext } from '../context/AppContext';
 
 const Dashboard = () => {
-    const { totalDebt, totalPaid, totalIncome, totalExpenses } = useAppContext();
+    const { totalDebt, totalPaid, totalIncome, totalExpenses, debts, transactions, importData } = useAppContext();
 
     const totalTracked = totalDebt + totalPaid;
     const progress = totalTracked > 0 ? (totalPaid / totalTracked) * 100 : 0;
@@ -47,6 +47,57 @@ const Dashboard = () => {
                     <span style={{ color: 'var(--success-color)' }}>+₹{totalIncome}</span> / <span style={{ color: 'var(--danger-color)' }}>-₹{totalExpenses}</span>
                 </div>
                 <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', opacity: 0.6 }}>Income vs Expenses</div>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '1.5rem', gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h3 style={{ margin: 0, fontSize: '1rem' }}>Data Management</h3>
+                    <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', opacity: 0.6 }}>Backup your data or restore from another device.</p>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                        className="btn"
+                        style={{ background: 'rgba(255,255,255,0.1)', fontSize: '0.9rem' }}
+                        onClick={() => {
+                            const data = JSON.stringify({ debts, transactions });
+                            const blob = new Blob([data], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'debt-tracker-backup.json';
+                            a.click();
+                        }}
+                    >
+                        Export Data
+                    </button>
+                    <label className="btn btn-primary" style={{ fontSize: '0.9rem', cursor: 'pointer' }}>
+                        Import Data
+                        <input
+                            type="file"
+                            accept=".json"
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                    try {
+                                        const data = JSON.parse(e.target.result);
+                                        if (data.debts && data.transactions) {
+                                            importData(data);
+                                            alert('Data imported successfully!');
+                                        } else {
+                                            alert('Invalid data file.');
+                                        }
+                                    } catch (err) {
+                                        alert('Error reading file');
+                                    }
+                                };
+                                reader.readAsText(file);
+                            }}
+                        />
+                    </label>
+                </div>
             </div>
         </div>
     );

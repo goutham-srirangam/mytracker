@@ -62,6 +62,17 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    const importData = (data) => {
+        try {
+            if (data.debts) setDebts(data.debts);
+            if (data.transactions) setTransactions(data.transactions);
+            return true;
+        } catch (e) {
+            console.error("Import failed:", e);
+            return false;
+        }
+    };
+
     // Helper to calculate totals
     const totalDebt = debts.reduce((sum, d) => sum + parseFloat(d.currentAmount), 0);
     const totalPaid = debts.reduce((sum, d) => sum + parseFloat(d.paidAmount), 0);
@@ -79,6 +90,7 @@ export const AppProvider = ({ children }) => {
             addDebt,
             deleteDebt,
             addTransaction,
+            importData,
             totalDebt,
             totalPaid,
             totalIncome,
